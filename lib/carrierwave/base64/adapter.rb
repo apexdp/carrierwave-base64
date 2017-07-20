@@ -6,7 +6,7 @@ module Carrierwave
       # rubocop:disable Metrics/PerceivedComplexity
       def mount_base64_uploader(attribute, uploader_class, options = {})
         mount_uploader attribute, uploader_class, options
-        options[:file_name] ||= -> { attribute }
+        options[:file_name] ||= proc { attribute }
 
         define_method "#{attribute}=" do |data|
           return if data == send(attribute).to_s
@@ -19,7 +19,7 @@ module Carrierwave
                                     data.strip.start_with?('data')
 
           filename = if options[:file_name].respond_to?(:call)
-                       options[:file_name].call(self)
+                       options[:file_name]
                      else
                        options[:file_name].to_s
                      end
@@ -33,7 +33,7 @@ module Carrierwave
 
       def mount_base64_uploaders(attribute, uploader_class, options = {})
         mount_uploaders attribute, uploader_class, options
-        options[:file_name] ||= -> { attribute }
+        options[:file_name] ||= proc { attribute }
 
         define_method "#{attribute}=" do |data|
           return if data == send(attribute).to_s
@@ -52,7 +52,7 @@ module Carrierwave
                 options[:file_name].to_s
               end
 
-              Carrierwave::Base64::Base64StringIO.new(item.strip, "#{filename}_#{index}")
+              Carrierwave::Base64::Base64StringIO.new(item.strip, proc {"#{filename}_#{index}"})
             else
               item
             end
