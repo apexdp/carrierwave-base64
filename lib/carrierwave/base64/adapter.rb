@@ -19,12 +19,12 @@ module Carrierwave
                                     data.strip.start_with?('data')
 
           filename = if options[:file_name].respond_to?(:call)
-                       options[:file_name]
+                       options[:file_name].call(self)
                      else
                        options[:file_name].to_s
                      end
 
-          super Carrierwave::Base64::Base64StringIO.new(data.strip, filename)
+          super Carrierwave::Base64::Base64StringIO.new(data.strip, proc { filename })
         end
         # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
         # rubocop:enable Metrics/CyclomaticComplexity
@@ -47,7 +47,7 @@ module Carrierwave
           processed_data = data.map.with_index do |item, index|
             if item.is_a?(String) && item.strip.start_with?('data')
               filename = if options[:file_name].respond_to?(:call)
-                options[:file_name].call
+                options[:file_name].call(self)
               else
                 options[:file_name].to_s
               end
